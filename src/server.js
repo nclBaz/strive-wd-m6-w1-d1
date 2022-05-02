@@ -17,7 +17,7 @@ server.use("/books", booksRouter)
 
 // ********************** DATABASE CONNECTION ************************
 
-mongoose.connect("mongodb://localhost:27017/webdev-nov21")
+mongoose.connect(process.env.MONGO_CONNECTION_URL)
 
 mongoose.connection.on("connected", () => {
   console.log(`Connected to MongoDB!`)
