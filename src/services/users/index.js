@@ -7,34 +7,48 @@
 // 5. DELETE http://localhost:3001/users/:id --> DELETES A SINGLE USER (specified by id)
 
 import express from "express"
+import UsersModel from "./model.js"
 
 const usersRouter = express.Router()
 
 // 1.
-usersRouter.post("/", (req, res) => {
+usersRouter.post("/", async (req, res) => {
   // (req, res) => {} is the ENDPOINT HANDLER. Is the function that will be executed every time a request on that endpoint is sent. req and res are REQUEST and RESPONSE objects
 
-  res.send({ message: `HELLO I AM THE ${req.method} ROUTE: ` })
+  console.log("REQUEST BODY: ", req.body)
+
+  const newUser = new UsersModel(req.body) // this is going to VALIDATE the req.body
+  const savedUser = await newUser.save() // This saves the validated body into the users' collection
+
+  res.send(savedUser)
 })
 
 // 2.
-usersRouter.get("/", (req, res) => {
-  res.send({ message: `HELLO I AM THE ${req.method} ROUTE: ` })
+usersRouter.get("/", async (req, res) => {
+  const users = await UsersModel.find()
+  res.send(users)
 })
 
 // 3.
-usersRouter.get("/:id", (req, res) => {
-  res.send({ message: `HELLO I AM THE ${req.method} ROUTE: ` })
+usersRouter.get("/:userId", async (req, res) => {
+  const user = await UsersModel.findById(req.params.userId)
+  res.send(user)
 })
 
 // 4.
-usersRouter.put("/:id", (req, res) => {
-  res.send({ message: `HELLO I AM THE ${req.method} ROUTE: ` })
+usersRouter.put("/:userId", async (req, res) => {
+  const updatedUser = await UsersModel.findByIdAndUpdate(
+    req.params.userId, // WHO
+    req.body, // HOW
+    { new: true } // OPTIONS (if you want to obtain the updated user you should specify new: true)
+  )
+  res.send(updatedUser)
 })
 
 // 5.
-usersRouter.delete("/:id", (req, res) => {
-  res.send({ message: `HELLO I AM THE ${req.method} ROUTE: ` })
+usersRouter.delete("/:userId", async (req, res) => {
+  await UsersModel.findByIdAndDelete(req.params.userId)
+  res.status(204).send()
 })
 
 export default usersRouter
